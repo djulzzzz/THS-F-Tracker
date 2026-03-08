@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="THS Track">
+<title>THS Track 🌸</title>
+<link id="apple-touch-icon" rel="apple-touch-icon">
+<script>
+// Génère l'icône 🌸 en canvas et l'injecte comme apple-touch-icon
+(function(){
+  const c=document.createElement('canvas');
+  c.width=180;c.height=180;
+  const ctx=c.getContext('2d');
+  // Fond dégradé
+  const g=ctx.createLinearGradient(0,0,180,180);
+  g.addColorStop(0,'#1A1030');g.addColorStop(1,'#2D1B4E');
+  ctx.fillStyle=g;
+  ctx.beginPath();ctx.roundRect(0,0,180,180,36);ctx.fill();
+  // Halo rose
+  const h=ctx.createRadialGradient(90,90,10,90,90,80);
+  h.addColorStop(0,'rgba(255,107,157,0.25)');h.addColorStop(1,'rgba(255,107,157,0)');
+  ctx.fillStyle=h;ctx.fillRect(0,0,180,180);
+  // Emoji
+  ctx.font='96px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('🌸',90,95);
+  // Injecter
+  document.getElementById('apple-touch-icon').href=c.toDataURL('image/png');
+})();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --pink:#FF6B9D;--purple:#C084FC;--blue:#60A5FA;
+  --mint:#34D399;--yellow:#FBBF24;--orange:#FB923C;
+  --bg:#0F0A1E;--card:#1A1030;--card2:#221540;
+  --text:#F0E6FF;--muted:#8B7BAD;--border:rgba(192,132,252,0.2);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;padding-bottom:90px}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(192,132,252,.08) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(255,107,157,.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+.header{position:sticky;top:0;z-index:100;padding:16px 20px 12px;background:rgba(15,10,30,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(–border);display:flex;align-items:center;justify-content:space-between}
+.header h1{font-family:‘Syne’,sans-serif;font-size:22px;font-weight:800;background:linear-gradient(135deg,var(–pink),var(–purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-badge{font-size:11px;background:var(–card2);border:1px solid var(–border);padding:4px 10px;border-radius:20px;color:var(–muted)}
+
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(15,10,30,.97);backdrop-filter:blur(20px);border-top:1px solid var(–border);display:flex;padding:8px 0 env(safe-area-inset-bottom,16px)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;background:none;border:none;cursor:pointer;color:var(–muted);font-family:‘Nunito’,sans-serif;font-size:10px;font-weight:700;letter-spacing:.5px;transition:color .2s}
+.nav-btn.active{color:var(–purple)}
+.nav-btn .icon{font-size:20px}
+
+.page{display:none;padding:16px 16px 24px;position:relative;z-index:1}
+.page.active{display:block}
+
+.section-title{font-family:‘Syne’,sans-serif;font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(–muted);margin-bottom:12px;margin-top:22px}
+.section-title:first-child{margin-top:0}
+
+.card{background:var(–card);border:1px solid var(–border);border-radius:20px;padding:16px;margin-bottom:12px}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat-card{background:var(–card2);border:1px solid var(–border);border-radius:16px;padding:14px;text-align:center}
+.stat-card .emoji{font-size:22px;margin-bottom:4px}
+.stat-card .val{font-family:‘Syne’,sans-serif;font-size:20px;font-weight:800}
+.stat-card .lbl{font-size:10px;color:var(–muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+
+.hero-card{background:linear-gradient(135deg,rgba(255,107,157,.15),rgba(192,132,252,.15));border:1px solid rgba(255,107,157,.3);border-radius:24px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
+.hero-card::before{content:‘🌸’;position:absolute;right:-10px;top:-10px;font-size:80px;opacity:.1}
+.hero-card .label{font-size:11px;color:var(–pink);font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.hero-card .days{font-family:‘Syne’,sans-serif;font-size:44px;font-weight:800;line-height:1}
+.hero-card .sub{font-size:13px;color:var(–muted);margin-top:4px}
+.hero-card .date{font-size:15px;color:var(–purple);font-weight:700;margin-top:8px}
+
+.milestone-card{border-radius:20px;padding:16px;margin-bottom:10px;border:1px solid}
+.milestone-card.done{background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.3)}
+.milestone-card.next{background:linear-gradient(135deg,rgba(192,132,252,.12),rgba(255,107,157,.08));border-color:rgba(192,132,252,.4)}
+.milestone-card.upcoming{background:var(–card2);border-color:var(–border)}
+.milestone-header{display:flex;align-items:center;gap:10px}
+.milestone-icon{font-size:22px;flex-shrink:0}
+.milestone-title{font-family:‘Syne’,sans-serif;font-size:14px;font-weight:800}
+.milestone-sub{font-size:12px;color:var(–muted)}
+.milestone-badge{margin-left:auto;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;flex-shrink:0}
+.badge-done{background:rgba(52,211,153,.2);color:var(–mint)}
+.badge-next{background:rgba(192,132,252,.2);color:var(–purple)}
+.badge-upcoming{background:var(–card);color:var(–muted)}
+
+.rdv-card{background:linear-gradient(135deg,rgba(96,165,250,.1),rgba(192,132,252,.08));border:1px solid rgba(96,165,250,.3);border-radius:20px;padding:16px;margin-bottom:12px}
+.rdv-card .rdv-countdown{font-family:‘Syne’,sans-serif;font-size:32px;font-weight:800}
+.rdv-card .rdv-label{font-size:11px;color:var(–blue);font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.rdv-card .rdv-info{font-size:13px;color:var(–muted);margin-top:4px}
+
+.ratio-card{background:linear-gradient(135deg,rgba(255,107,157,.1),rgba(251,191,36,.08));border:1px solid rgba(255,107,157,.25);border-radius:20px;padding:16px;margin-bottom:12px}
+.ratio-big{font-family:‘Syne’,sans-serif;font-size:36px;font-weight:800;color:var(–pink)}
+.ratio-label{font-size:11px;color:var(–muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.ratio-bar-wrap{background:var(–card2);border-radius:20px;height:10px;margin-top:10px;overflow:hidden}
+.ratio-bar{height:100%;border-radius:20px;background:linear-gradient(90deg,var(–pink),var(–purple));transition:width .6s ease}
+.ratio-hint{font-size:11px;color:var(–muted);margin-top:6px}
+
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:11px;font-weight:700;color:var(–muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 13px;background:var(–card2);border:1px solid var(–border);border-radius:12px;color:var(–text);font-family:‘Nunito’,sans-serif;font-size:15px;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(–purple)}
+.form-group select{background-image:url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘12’ height=‘8’ viewBox=‘0 0 12 8’%3E%3Cpath d=‘M1 1l5 5 5-5’ stroke=’%238B7BAD’ stroke-width=‘2’ fill=‘none’ stroke-linecap=‘round’/%3E%3C/svg%3E”);background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.form-group select option{background:#221540}
+.form-group textarea{min-height:68px;resize:vertical}
+.date-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 20px;border-radius:14px;font-family:‘Nunito’,sans-serif;font-size:15px;font-weight:800;border:none;cursor:pointer;transition:all .2s;width:100%}
+.btn-primary{background:linear-gradient(135deg,var(–pink),var(–purple));color:#fff}
+.btn-primary:active{transform:scale(.97)}
+.btn-secondary{background:var(–card2);border:1px solid var(–border);color:var(–text)}
+.btn-mint{background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);color:var(–mint)}
+.btn-danger{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#F87171}
+.btn-blue{background:rgba(96,165,250,.15);border:1px solid rgba(96,165,250,.3);color:var(–blue)}
+.btn-yellow{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);color:var(–yellow)}
+.btn-sm{padding:7px 13px;font-size:12px;border-radius:10px;width:auto}
+
+.log-item{display:flex;align-items:flex-start;gap:10px;padding:13px 14px;background:var(–card);border:1px solid var(–border);border-radius:16px;margin-bottom:8px}
+.log-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.log-content{flex:1;min-width:0}
+.log-title{font-weight:700;font-size:14px}
+.log-sub{font-size:12px;color:var(–muted);margin-top:2px}
+.log-right{text-align:right;flex-shrink:0}
+.log-date{font-size:11px;color:var(–muted)}
+
+.tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;margin-right:4px;margin-bottom:3px}
+.tag-pink{background:rgba(255,107,157,.15);color:var(–pink);border:1px solid rgba(255,107,157,.3)}
+.tag-purple{background:rgba(192,132,252,.15);color:var(–purple);border:1px solid rgba(192,132,252,.3)}
+.tag-blue{background:rgba(96,165,250,.15);color:var(–blue);border:1px solid rgba(96,165,250,.3)}
+.tag-mint{background:rgba(52,211,153,.15);color:var(–mint);border:1px solid rgba(52,211,153,.3)}
+
+.blood-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.blood-item{background:var(–card2);border:1px solid var(–border);border-radius:12px;padding:10px 6px;text-align:center}
+.blood-item .bval{font-family:‘Syne’,sans-serif;font-size:17px;font-weight:800}
+.blood-item .blbl{font-size:10px;color:var(–muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+.blood-item .bunit{font-size:10px;color:var(–muted)}
+.val-ok{color:var(–mint)}.val-high{color:var(–yellow)}.val-low{color:var(–orange)}
+
+.measure-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(–border)}
+.measure-row:last-child{border-bottom:none}
+.measure-name{font-weight:700;font-size:14px}
+.measure-val{font-family:‘Syne’,sans-serif;font-size:15px;font-weight:800;color:var(–purple)}
+
+.photo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.photo-item{aspect-ratio:1;border-radius:12px;background:var(–card2);border:1px solid var(–border);overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:24px;color:var(–muted)}
+.photo-item img{width:100%;height:100%;object-fit:cover}
+
+.empty{text-align:center;padding:36px 20px;color:var(–muted)}
+.empty .emoji{font-size:42px;margin-bottom:10px}
+.empty p{font-size:13px;line-height:1.6}
+
+.chart-wrap{background:var(–card);border:1px solid var(–border);border-radius:20px;padding:16px;margin-bottom:12px}
+.chart-title{font-family:‘Syne’,sans-serif;font-size:13px;font-weight:800;margin-bottom:2px}
+.chart-sub{font-size:11px;color:var(–muted);margin-bottom:12px}
+.chart-canvas-wrap{position:relative;height:175px}
+.chart-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.chart-tab{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid var(–border);background:var(–card2);color:var(–muted);cursor:pointer;transition:all .2s}
+.chart-tab.active{background:var(–purple);color:#fff;border-color:var(–purple)}
+
+.export-card{background:linear-gradient(135deg,rgba(52,211,153,.1),rgba(96,165,250,.1));border:1px solid rgba(52,211,153,.25);border-radius:20px;padding:16px;margin-bottom:12px}
+.export-card h3{font-family:‘Syne’,sans-serif;font-size:14px;font-weight:800;margin-bottom:4px}
+.export-card p{font-size:12px;color:var(–muted);margin-bottom:12px;line-height:1.6}
+
+/* RAPPORT */
+.rapport-card{background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(255,107,157,.08));border:1px solid rgba(251,191,36,.3);border-radius:20px;padding:16px;margin-bottom:12px}
+.rapport-card h3{font-family:‘Syne’,sans-serif;font-size:14px;font-weight:800;margin-bottom:4px}
+.rapport-card p{font-size:12px;color:var(–muted);margin-bottom:12px;line-height:1.6}
+
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden}
+.confetto{position:absolute;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+.install-banner{background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(251,191,36,.05));border:1px solid rgba(251,191,36,.3);border-radius:16px;padding:13px 14px;display:flex;gap:10px;align-items:center;margin-bottom:14px}
+.install-banner .ico{font-size:24px;flex-shrink:0}
+.install-banner p{font-size:11px;color:var(–yellow);font-weight:600;line-height:1.5}
+
+.flex{display:flex;gap:8px}.flex-1{flex:1}
+.mt-8{margin-top:8px}.mt-12{margin-top:12px}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(–border);border-radius:2px}
+</style>
+
+</head>
+<body>
+
+<div class="header">
+  <h1>THS Track 🌸</h1>
+  <span class="header-badge" id="journeyDays">Jour 0</span>
+</div>
+
+<!-- ══ ACCUEIL ══ -->
+
+<div class="page active" id="page-home">
+  <div class="install-banner" id="installBanner">
+    <span class="ico">📱</span>
+    <p>Safari → Partager → «Sur l'écran d'accueil» pour une vraie app !</p>
+  </div>
+  <div class="hero-card" id="heroCard">
+    <div class="label">Prochaine prise</div>
+    <div class="days" id="nextDays">—</div>
+    <div class="sub" id="nextSub">Enregistre ta première prise</div>
+    <div class="date" id="nextDate"></div>
+  </div>
+  <div id="rdvHomeWrap"></div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="emoji">💊</div><div class="val" id="totalPrises">0</div><div class="lbl">Prises</div></div>
+    <div class="stat-card"><div class="emoji">📅</div><div class="val" id="daysSinceStart">—</div><div class="lbl">Jours THS</div></div>
+    <div class="stat-card"><div class="emoji">🩸</div><div class="val" id="lastE2">—</div><div class="lbl">E2 pg/mL</div></div>
+    <div class="stat-card"><div class="emoji">📏</div><div class="val" id="lastMeasureDate">—</div><div class="lbl">Mensuration</div></div>
+  </div>
+  <div class="section-title">Prochain jalon</div>
+  <div id="nextMilestoneWrap"></div>
+  <div class="section-title">Dernières prises</div>
+  <div id="recentPrises"></div>
+</div>
+
+<!-- ══ JALONS ══ -->
+
+<div class="page" id="page-milestones">
+  <div class="section-title">Jalons THS 🏆</div>
+  <div id="milestonesList"></div>
+  <div class="section-title">RDV Médecin 🩺</div>
+  <div class="card">
+    <div class="form-group"><label>Date du prochain RDV</label><input type="date" id="rdv-date"></div>
+    <div class="form-group"><label>Médecin / motif</label><input type="text" id="rdv-label" placeholder="Dr. X — suivi THS"></div>
+    <button class="btn btn-blue" onclick="saveRdv()" style="margin-bottom:12px">🗓️ Enregistrer</button>
+  </div>
+  <div id="rdvCard"></div>
+  <div class="section-title">Ratio hanches / taille 📐</div>
+  <div id="ratioCard"></div>
+</div>
+
+<!-- ══ GRAPHIQUES ══ -->
+
+<div class="page" id="page-charts">
+  <div class="chart-tabs">
+    <div class="chart-tab active" onclick="switchChart('e2',this)">🩸 E2</div>
+    <div class="chart-tab" onclick="switchChart('t',this)">🔵 T</div>
+    <div class="chart-tab" onclick="switchChart('weight',this)">⚖️ Poids</div>
+    <div class="chart-tab" onclick="switchChart('mensus',this)">📐 Mensu.</div>
+    <div class="chart-tab" onclick="switchChart('ratio',this)">🍑 Ratio</div>
+    <div class="chart-tab" onclick="switchChart('intervals',this)">📆 Interval.</div>
+  </div>
+  <div class="chart-wrap" id="chartE2"><div class="chart-title">Estradiol (E2)</div><div class="chart-sub">pg/mL · zone cible 100–400</div><div class="chart-canvas-wrap"><canvas id="canvasE2"></canvas></div></div>
+  <div class="chart-wrap" id="chartT" style="display:none"><div class="chart-title">Testostérone</div><div class="chart-sub">ng/dL</div><div class="chart-canvas-wrap"><canvas id="canvasT"></canvas></div></div>
+  <div class="chart-wrap" id="chartWeight" style="display:none"><div class="chart-title">Poids</div><div class="chart-sub">kg</div><div class="chart-canvas-wrap"><canvas id="canvasWeight"></canvas></div></div>
+  <div class="chart-wrap" id="chartMensus" style="display:none"><div class="chart-title">Mensurations</div><div class="chart-sub">cm — poitrine / taille / hanches</div><div class="chart-canvas-wrap"><canvas id="canvasMensus"></canvas></div></div>
+  <div class="chart-wrap" id="chartRatio" style="display:none"><div class="chart-title">Ratio hanches / taille</div><div class="chart-sub">Cible ≤ 0.75 🌸</div><div class="chart-canvas-wrap"><canvas id="canvasRatio"></canvas></div></div>
+  <div class="chart-wrap" id="chartIntervals" style="display:none"><div class="chart-title">Intervalles entre prises</div><div class="chart-sub">jours</div><div class="chart-canvas-wrap"><canvas id="canvasIntervals"></canvas></div></div>
+  <div id="chartsEmpty" class="empty" style="display:none"><div class="emoji">📊</div><p>Pas encore assez de données.</p></div>
+</div>
+
+<!-- ══ PRISES ══ -->
+
+<div class="page" id="page-prises">
+  <div class="section-title">Nouvelle prise</div>
+  <div class="card">
+    <div class="date-row">
+      <div class="form-group"><label>Date</label><input type="date" id="prise-date"></div>
+      <div class="form-group"><label>Heure</label><input type="time" id="prise-time"></div>
+    </div>
+    <div class="form-group">
+      <label>Médicament</label>
+      <select id="prise-med">
+        <option>Estradiol Depo (im)</option>
+        <option>Estradiol Valérate (im)</option>
+        <option>Estradiol (sc)</option>
+        <option>Gel Estradiol</option>
+        <option>Patch Estradiol</option>
+        <option>Comprimé Estradiol</option>
+        <option>Spironolactone</option>
+        <option>Cyprotérone</option>
+        <option>Autre</option>
+      </select>
+    </div>
+    <div class="flex">
+      <div class="form-group flex-1"><label>Dose (mg)</label><input type="number" id="prise-dose" placeholder="5" step="0.5" inputmode="decimal"></div>
+      <div class="form-group flex-1"><label>Intervalle (j)</label><input type="number" id="prise-interval" placeholder="7" min="1" inputmode="numeric"></div>
+    </div>
+    <div class="form-group">
+      <label>Site / application</label>
+      <select id="prise-site">
+        <option value="">— Optionnel —</option>
+        <option>Fesse gauche</option><option>Fesse droite</option>
+        <option>Cuisse gauche</option><option>Cuisse droite</option>
+        <option>Ventre gauche (sc)</option><option>Ventre droite (sc)</option>
+        <option>Bras gauche (sc)</option><option>Bras droite (sc)</option>
+        <option>Épaule gauche (gel)</option><option>Épaule droite (gel)</option>
+        <option>Application cutanée</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Note</label><textarea id="prise-note" placeholder="Ressentis, observations..."></textarea></div>
+    <button class="btn btn-primary" onclick="savePrise()">💊 Enregistrer la prise</button>
+  </div>
+  <div class="section-title">Historique</div>
+  <div id="prisesList"></div>
+</div>
+
+<!-- ══ BILANS ══ -->
+
+<div class="page" id="page-blood">
+  <div class="section-title">Nouveau bilan sanguin</div>
+  <div class="card">
+    <div class="form-group"><label>Date</label><input type="date" id="blood-date"></div>
+    <div class="blood-grid">
+      <div class="form-group"><label>E2 (pg/mL)</label><input type="number" id="blood-e2" placeholder="200" inputmode="decimal"></div>
+      <div class="form-group"><label>T (ng/dL)</label><input type="number" id="blood-t" placeholder="20" step="0.1" inputmode="decimal"></div>
+      <div class="form-group"><label>LH (mUI)</label><input type="number" id="blood-lh" placeholder="1" step="0.1" inputmode="decimal"></div>
+    </div>
+    <div class="flex">
+      <div class="form-group flex-1"><label>FSH (mUI)</label><input type="number" id="blood-fsh" placeholder="1" step="0.1" inputmode="decimal"></div>
+      <div class="form-group flex-1"><label>Prolact. (µg/L)</label><input type="number" id="blood-prl" placeholder="10" step="0.1" inputmode="decimal"></div>
+    </div>
+    <div class="form-group"><label>Note</label><textarea id="blood-note" placeholder="Labo, contexte..."></textarea></div>
+    <button class="btn btn-primary" onclick="saveBlood()">🩸 Enregistrer</button>
+  </div>
+  <div class="section-title">Historique</div>
+  <div id="bloodList"></div>
+</div>
+
+<!-- ══ CORPS ══ -->
+
+<div class="page" id="page-body">
+  <div class="section-title">Mensurations</div>
+  <div class="card">
+    <div class="form-group"><label>Date</label><input type="date" id="meas-date"></div>
+    <div class="flex">
+      <div class="form-group flex-1"><label>Poids (kg)</label><input type="number" id="meas-weight" placeholder="70" step="0.1" inputmode="decimal"></div>
+      <div class="form-group flex-1"><label>Taille cm</label><input type="number" id="meas-waist" placeholder="80" inputmode="decimal"></div>
+    </div>
+    <div class="flex">
+      <div class="form-group flex-1"><label>Hanches cm</label><input type="number" id="meas-hips" placeholder="90" inputmode="decimal"></div>
+      <div class="form-group flex-1"><label>Poitrine cm</label><input type="number" id="meas-chest" placeholder="85" inputmode="decimal"></div>
+    </div>
+    <div class="form-group"><label>Note / humeur</label><textarea id="meas-note" placeholder="Comment tu te sens ?"></textarea></div>
+    <button class="btn btn-primary" onclick="saveMeasure()">📏 Enregistrer</button>
+  </div>
+  <div class="section-title">Photos d'évolution</div>
+  <div class="card">
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">📵 Photos stockées uniquement sur ton téléphone.</p>
+    <input type="file" id="photo-input" accept="image/*" style="display:none" multiple onchange="handlePhotos(this)">
+    <button class="btn btn-secondary" onclick="document.getElementById('photo-input').click()">📷 Ajouter</button>
+    <div class="photo-grid mt-12" id="photoGrid"></div>
+  </div>
+  <div class="section-title">Historique mensurations</div>
+  <div id="measureList"></div>
+</div>
+
+<!-- ══ RÉGLAGES ══ -->
+
+<div class="page" id="page-settings">
+
+  <div class="section-title">Rapport médecin</div>
+  <div class="rapport-card">
+    <h3>📋 Rapport de suivi THS</h3>
+    <p>Génère un document propre à imprimer ou partager avec ton médecin : prises, bilans sanguins, mensurations, évolution.</p>
+    <div class="form-group" style="margin-bottom:12px">
+      <label>Nom du patient (optionnel)</label>
+      <input type="text" id="rapport-name" placeholder="Prénom Nom">
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label>Période à couvrir</label>
+      <select id="rapport-period">
+        <option value="all">Tout l'historique</option>
+        <option value="3">3 derniers mois</option>
+        <option value="6">6 derniers mois</option>
+        <option value="12">12 derniers mois</option>
+      </select>
+    </div>
+    <button class="btn btn-yellow" onclick="generateRapport()">📋 Générer le rapport</button>
+  </div>
+
+  <div class="section-title">Export / Import JSON</div>
+  <div class="export-card">
+    <h3>💾 Sauvegarde</h3>
+    <p>Backup de toutes tes données (hors photos). Indispensable si tu changes de téléphone ou vides Safari.</p>
+    <button class="btn btn-mint" onclick="exportData()" style="margin-bottom:8px">⬇️ Exporter</button>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
+    <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">⬆️ Importer</button>
+  </div>
+
+  <div class="section-title">Données stockées</div>
+  <div class="card">
+    <div class="measure-row"><span class="measure-name">💊 Prises</span><span class="measure-val" id="countPrises">0</span></div>
+    <div class="measure-row"><span class="measure-name">🩸 Bilans</span><span class="measure-val" id="countBlood">0</span></div>
+    <div class="measure-row"><span class="measure-name">📏 Mensurations</span><span class="measure-val" id="countMeas">0</span></div>
+    <div class="measure-row"><span class="measure-name">📷 Photos</span><span class="measure-val" id="countPhotos">0</span></div>
+    <div class="measure-row" style="border-bottom:none"><span style="font-size:12px;color:var(--muted)">Stockage</span><span style="font-size:12px;color:var(--muted)" id="storageSize">—</span></div>
+  </div>
+
+  <div class="section-title">Danger zone</div>
+  <div class="card">
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">Supprime TOUTES les données. Exporte d'abord !</p>
+    <button class="btn btn-danger" onclick="nukeAll()">🗑️ Tout effacer</button>
+  </div>
+</div>
+
+<!-- NAV -->
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="showPage('home',this)"><span class="icon">🏠</span>Accueil</button>
+  <button class="nav-btn" onclick="showPage('milestones',this)"><span class="icon">🏆</span>Jalons</button>
+  <button class="nav-btn" onclick="showPage('charts',this)"><span class="icon">📊</span>Graphs</button>
+  <button class="nav-btn" onclick="showPage('prises',this)"><span class="icon">💊</span>Prises</button>
+  <button class="nav-btn" onclick="showPage('blood',this)"><span class="icon">🩸</span>Bilans</button>
+  <button class="nav-btn" onclick="showPage('body',this)"><span class="icon">📐</span>Corps</button>
+  <button class="nav-btn" onclick="showPage('settings',this)"><span class="icon">⚙️</span>Réglages</button>
+</nav>
+
+<script>
+const S={
+  get:k=>{try{return JSON.parse(localStorage.getItem(k))||[]}catch{return[]}},
+  set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)),
+  getOne:k=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}},
+  setOne:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
+};
+
+const MILESTONES=[
+  {days:1,icon:'🌱',title:'Jour 1 !',sub:'Le début de quelque chose de grand.'},
+  {days:7,icon:'✨',title:'1 semaine',sub:'Première semaine de THS.'},
+  {days:30,icon:'🌸',title:'1 mois',sub:'Les hormones commencent à s\'installer.'},
+  {days:60,icon:'🦋',title:'2 mois',sub:'Changements subtils qui s\'accumulent.'},
+  {days:90,icon:'💫',title:'3 mois',sub:'Premier grand cap — bilan souvent recommandé.'},
+  {days:180,icon:'🌺',title:'6 mois',sub:'La peau, les émotions, le corps changent vraiment.'},
+  {days:270,icon:'💜',title:'9 mois',sub:'Trois quarts d\'année. Tu construis.'},
+  {days:365,icon:'🎂',title:'1 an de THS !',sub:'Un an. Immense. Célèbre ça.'},
+  {days:547,icon:'⭐',title:'18 mois',sub:'Certains changements continuent jusqu\'ici.'},
+  {days:730,icon:'👑',title:'2 ans de THS !',sub:'Deux ans. Tu rayonnes.'},
+  {days:1095,icon:'💎',title:'3 ans de THS',sub:'Changements hormonaux quasi-complets.'},
+];
+
+// ══ UTILS ══
+function todayStr(){return new Date().toISOString().slice(0,10)}
+function nowTime(){const d=new Date();return`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`}
+function fmt(s){if(!s)return'—';const d=new Date(s+'T12:00:00');return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})}
+function fmtShort(s){if(!s)return'—';const d=new Date(s+'T12:00:00');return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}
+function fmtDT(date,time){if(!date)return'—';const d=new Date(`${date}T${time||'12:00'}`);return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+function daysFromNow(s){return Math.round((new Date(s+'T12:00:00')-new Date())/86400000)}
+function daysSince(s){return Math.round((new Date()-new Date(s+'T12:00:00'))/86400000)}
+function filterByPeriod(list,months){
+  if(!months||months==='all')return list;
+  const cutoff=new Date();cutoff.setMonth(cutoff.getMonth()-parseInt(months));
+  return list.filter(i=>new Date(i.date+'T12:00:00')>=cutoff);
+}
+
+// ══ NAV ══
+let activeChartId='e2';
+const chartInstances={};
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='home')refreshHome();
+  if(id==='milestones'){renderMilestones();renderRdvCard();renderRatioCard()}
+  if(id==='prises')renderPrises();
+  if(id==='blood')renderBlood();
+  if(id==='body'){renderMeasures();renderPhotos()}
+  if(id==='charts')renderCharts();
+  if(id==='settings')refreshSettings();
+}
+
+// ══ INIT ══
+document.getElementById('prise-date').value=todayStr();
+document.getElementById('prise-time').value=nowTime();
+document.getElementById('blood-date').value=todayStr();
+document.getElementById('meas-date').value=todayStr();
+
+// ══ PRISES ══
+function savePrise(){
+  const date=document.getElementById('prise-date').value;
+  const time=document.getElementById('prise-time').value;
+  const med=document.getElementById('prise-med').value;
+  const dose=document.getElementById('prise-dose').value;
+  const interval=document.getElementById('prise-interval').value;
+  const site=document.getElementById('prise-site').value;
+  const note=document.getElementById('prise-note').value;
+  if(!date||!dose){alert('Date et dose obligatoires !');return}
+  const list=S.get('prises');
+  list.unshift({id:Date.now(),date,time:time||'12:00',med,dose,interval:interval||7,site,note});
+  S.set('prises',list);
+  document.getElementById('prise-dose').value='';
+  document.getElementById('prise-note').value='';
+  document.getElementById('prise-date').value=todayStr();
+  document.getElementById('prise-time').value=nowTime();
+  renderPrises();refreshHome();
+  alert('💊 Prise enregistrée !');
+}
+function deletePrise(id){
+  if(!confirm('Supprimer ?'))return;
+  S.set('prises',S.get('prises').filter(i=>i.id!==id));
+  renderPrises();refreshHome();
+}
+function renderPrises(){
+  const list=S.get('prises');
+  const el=document.getElementById('prisesList');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="emoji">💊</div><p>Aucune prise enregistrée</p></div>`;return}
+  el.innerHTML=list.map(i=>`
+    <div class="log-item">
+      <div class="log-dot" style="background:var(--pink)"></div>
+      <div class="log-content">
+        <div class="log-title">${i.med} — ${i.dose} mg</div>
+        <div class="log-sub">
+          ${i.site?`<span class="tag tag-purple">${i.site}</span>`:''}
+          ${i.interval?`<span class="tag tag-blue">/${i.interval}j</span>`:''}
+        </div>
+        ${i.note?`<div class="log-sub" style="font-style:italic;margin-top:2px">${i.note}</div>`:''}
+      </div>
+      <div class="log-right">
+        <div class="log-date">${fmtDT(i.date,i.time)}</div>
+        <button class="btn btn-danger btn-sm mt-8" onclick="deletePrise(${i.id})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+// ══ BILANS ══
+function saveBlood(){
+  const date=document.getElementById('blood-date').value;
+  if(!date){alert('Date obligatoire !');return}
+  const entry={id:Date.now(),date,
+    e2:document.getElementById('blood-e2').value,
+    t:document.getElementById('blood-t').value,
+    lh:document.getElementById('blood-lh').value,
+    fsh:document.getElementById('blood-fsh').value,
+    prl:document.getElementById('blood-prl').value,
+    note:document.getElementById('blood-note').value};
+  const list=S.get('bloods');list.unshift(entry);S.set('bloods',list);
+  ['blood-e2','blood-t','blood-lh','blood-fsh','blood-prl','blood-note'].forEach(id=>document.getElementById(id).value='');
+  renderBlood();refreshHome();
+  alert('🩸 Bilan enregistré !');
+}
+function deleteBlood(id){
+  if(!confirm('Supprimer ?'))return;
+  S.set('bloods',S.get('bloods').filter(i=>i.id!==id));
+  renderBlood();refreshHome();
+}
+function e2Class(v){if(!v)return'';v=parseFloat(v);if(v>=100&&v<=400)return'val-ok';if(v>400)return'val-high';return'val-low'}
+function renderBlood(){
+  const list=S.get('bloods');
+  const el=document.getElementById('bloodList');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="emoji">🩸</div><p>Aucun bilan</p></div>`;return}
+  el.innerHTML=list.map(b=>`
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-weight:700;font-size:14px">🩸 ${fmt(b.date)}</div>
+        <button class="btn btn-danger btn-sm" onclick="deleteBlood(${b.id})">✕</button>
+      </div>
+      <div class="blood-grid">
+        ${b.e2?`<div class="blood-item"><div class="bval ${e2Class(b.e2)}">${b.e2}</div><div class="blbl">E2</div><div class="bunit">pg/mL</div></div>`:''}
+        ${b.t?`<div class="blood-item"><div class="bval">${b.t}</div><div class="blbl">T</div><div class="bunit">ng/dL</div></div>`:''}
+        ${b.lh?`<div class="blood-item"><div class="bval">${b.lh}</div><div class="blbl">LH</div><div class="bunit">mUI</div></div>`:''}
+        ${b.fsh?`<div class="blood-item"><div class="bval">${b.fsh}</div><div class="blbl">FSH</div><div class="bunit">mUI</div></div>`:''}
+        ${b.prl?`<div class="blood-item"><div class="bval">${b.prl}</div><div class="blbl">Prolact.</div><div class="bunit">µg/L</div></div>`:''}
+      </div>
+      ${b.note?`<div style="margin-top:8px;font-size:12px;color:#8B7BAD;font-style:italic">${b.note}</div>`:''}
+    </div>`).join('');
+}
+
+// ══ MENSURATIONS ══
+function saveMeasure(){
+  const date=document.getElementById('meas-date').value;
+  if(!date){alert('Date obligatoire !');return}
+  const entry={id:Date.now(),date,
+    weight:document.getElementById('meas-weight').value,
+    waist:document.getElementById('meas-waist').value,
+    hips:document.getElementById('meas-hips').value,
+    chest:document.getElementById('meas-chest').value,
+    note:document.getElementById('meas-note').value};
+  const list=S.get('measures');list.unshift(entry);S.set('measures',list);
+  ['meas-weight','meas-waist','meas-hips','meas-chest','meas-note'].forEach(id=>document.getElementById(id).value='');
+  renderMeasures();refreshHome();
+  alert('📏 Mensurations enregistrées !');
+}
+function deleteMeasure(id){
+  if(!confirm('Supprimer ?'))return;
+  S.set('measures',S.get('measures').filter(i=>i.id!==id));
+  renderMeasures();refreshHome();
+}
+function renderMeasures(){
+  const list=S.get('measures');
+  const el=document.getElementById('measureList');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="emoji">📏</div><p>Aucune mensuration</p></div>`;return}
+  el.innerHTML=list.map(m=>`
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-weight:700">📅 ${fmt(m.date)}</div>
+        <button class="btn btn-danger btn-sm" onclick="deleteMeasure(${m.id})">✕</button>
+      </div>
+      ${m.weight?`<div class="measure-row"><span class="measure-name">⚖️ Poids</span><span class="measure-val">${m.weight} kg</span></div>`:''}
+      ${m.chest?`<div class="measure-row"><span class="measure-name">🌸 Poitrine</span><span class="measure-val">${m.chest} cm</span></div>`:''}
+      ${m.waist?`<div class="measure-row"><span class="measure-name">⏺ Taille</span><span class="measure-val">${m.waist} cm</span></div>`:''}
+      ${m.hips?`<div class="measure-row"><span class="measure-name">🍑 Hanches</span><span class="measure-val">${m.hips} cm</span></div>`:''}
+      ${m.waist&&m.hips?`<div class="measure-row"><span class="measure-name">📐 Ratio h/t</span><span class="measure-val" style="color:var(--pink)">${(parseFloat(m.hips)/parseFloat(m.waist)).toFixed(3)}</span></div>`:''}
+      ${m.note?`<div style="margin-top:8px;font-size:12px;color:#8B7BAD;font-style:italic">${m.note}</div>`:''}
+    </div>`).join('');
+}
+
+// ══ PHOTOS ══
+function handlePhotos(input){
+  const photos=S.get('photos');
+  Array.from(input.files).forEach(file=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      photos.unshift({id:Date.now()+Math.random(),date:todayStr(),src:e.target.result});
+      if(photos.length>30)photos.pop();
+      S.set('photos',photos);renderPhotos();
+    };
+    r.readAsDataURL(file);
+  });
+}
+function renderPhotos(){
+  const photos=S.get('photos');
+  const el=document.getElementById('photoGrid');
+  if(!photos.length){el.innerHTML='';return}
+  el.innerHTML=photos.map(p=>`<div class="photo-item" onclick="viewPhoto('${p.id}')"><img src="${p.src}" alt="${p.date}"></div>`).join('');
+}
+function viewPhoto(id){
+  const p=S.get('photos').find(x=>String(x.id)===String(id));if(!p)return;
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px';
+  ov.innerHTML=`<img src="${p.src}" style="max-width:95vw;max-height:72vh;object-fit:contain;border-radius:12px"><div style="color:#8B7BAD;font-size:13px">${fmt(p.date)}</div>
+    <div style="display:flex;gap:12px">
+      <button onclick="this.closest('div[style]').remove()" style="padding:12px 20px;border-radius:12px;background:#1A1030;border:1px solid rgba(192,132,252,.2);color:#F0E6FF;font-family:Nunito,sans-serif;font-weight:700;cursor:pointer">Fermer</button>
+      <button onclick="deletePhoto('${p.id}',this)" style="padding:12px 20px;border-radius:12px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#F87171;font-family:Nunito,sans-serif;font-weight:700;cursor:pointer">Supprimer</button>
+    </div>`;
+  document.body.appendChild(ov);
+}
+function deletePhoto(id,btn){
+  if(!confirm('Supprimer ?'))return;
+  S.set('photos',S.get('photos').filter(p=>String(p.id)!==String(id)));
+  btn.closest('div[style]').remove();renderPhotos();
+}
+
+// ══ JALONS ══
+function getElapsed(){
+  const prises=S.get('prises');
+  if(!prises.length)return 0;
+  return daysSince(prises[prises.length-1].date);
+}
+function renderMilestones(){
+  const elapsed=getElapsed();
+  const el=document.getElementById('milestonesList');
+  let nextFound=false;
+  el.innerHTML=MILESTONES.map(m=>{
+    const done=elapsed>=m.days;
+    const isNext=!done&&!nextFound;
+    if(isNext)nextFound=true;
+    const remaining=m.days-elapsed;
+    return`<div class="milestone-card ${done?'done':isNext?'next':'upcoming'}">
+      <div class="milestone-header">
+        <span class="milestone-icon">${m.icon}</span>
+        <div><div class="milestone-title">${m.title}</div><div class="milestone-sub">${m.sub}</div></div>
+        <span class="milestone-badge ${done?'badge-done':isNext?'badge-next':'badge-upcoming'}">${done?'✓ Atteint':isNext?`Dans ${remaining}j`:`J+${m.days}`}</span>
+      </div>
+    </div>`;
+  }).join('');
+  const justReached=MILESTONES.find(m=>elapsed>=m.days&&elapsed<m.days+1);
+  if(justReached)setTimeout(confetti,300);
+}
+function renderNextMilestone(){
+  const elapsed=getElapsed();
+  const next=MILESTONES.find(m=>m.days>elapsed);
+  const el=document.getElementById('nextMilestoneWrap');
+  if(!next){el.innerHTML='<div class="milestone-card done"><div class="milestone-header"><span class="milestone-icon">👑</span><div><div class="milestone-title">Tous les jalons atteints !</div></div></div></div>';return}
+  el.innerHTML=`<div class="milestone-card next"><div class="milestone-header">
+    <span class="milestone-icon">${next.icon}</span>
+    <div><div class="milestone-title">${next.title}</div><div class="milestone-sub">${next.sub}</div></div>
+    <span class="milestone-badge badge-next">Dans ${next.days-elapsed}j</span>
+  </div></div>`;
+}
+
+// ══ RDV ══
+function saveRdv(){
+  const date=document.getElementById('rdv-date').value;
+  const label=document.getElementById('rdv-label').value;
+  if(!date){alert('Date obligatoire !');return}
+  S.setOne('rdv',{date,label:label||'RDV médecin'});
+  renderRdvCard();renderRdvHome();
+  alert('🗓️ RDV enregistré !');
+}
+function deleteRdv(){
+  if(!confirm('Supprimer ?'))return;
+  localStorage.removeItem('rdv');renderRdvCard();renderRdvHome();
+}
+function renderRdvCard(){
+  const rdv=S.getOne('rdv');
+  const el=document.getElementById('rdvCard');
+  if(!rdv){el.innerHTML=`<div class="empty"><div class="emoji">🗓️</div><p>Aucun RDV enregistré</p></div>`;return}
+  const diff=daysFromNow(rdv.date);const isPast=diff<0;
+  el.innerHTML=`<div class="rdv-card">
+    <div class="rdv-label">${isPast?'RDV passé':'Prochain RDV'}</div>
+    <div class="rdv-countdown" style="color:${isPast?'var(--orange)':'var(--blue)'}">
+      ${isPast?`Il y a ${Math.abs(diff)}j`:diff===0?`Aujourd'hui !`:`J-${diff}`}
+    </div>
+    <div class="rdv-info">${rdv.label} · ${fmt(rdv.date)}</div>
+    <button class="btn btn-danger btn-sm mt-8" onclick="deleteRdv()">✕ Supprimer</button>
+  </div>`;
+}
+function renderRdvHome(){
+  const rdv=S.getOne('rdv');
+  const el=document.getElementById('rdvHomeWrap');
+  if(!rdv){el.innerHTML='';return}
+  const diff=daysFromNow(rdv.date);const isPast=diff<0;
+  if(isPast&&diff<-7){el.innerHTML='';return}
+  el.innerHTML=`<div class="rdv-card" style="margin-bottom:16px">
+    <div class="rdv-label">🩺 ${rdv.label}</div>
+    <div class="rdv-countdown" style="color:${isPast?'var(--orange)':'var(--blue)'}">
+      ${isPast?'Passé':diff===0?`Aujourd'hui !`:`J-${diff}`}
+    </div>
+    <div class="rdv-info">${fmt(rdv.date)}</div>
+  </div>`;
+}
+
+// ══ RATIO ══
+function renderRatioCard(){
+  const meas=S.get('measures').filter(m=>m.hips&&m.waist);
+  const el=document.getElementById('ratioCard');
+  if(!meas.length){el.innerHTML=`<div class="empty"><div class="emoji">📐</div><p>Enregistre des mensurations (hanches + taille) pour voir ton ratio.</p></div>`;return}
+  const last=meas[0];
+  const ratio=(parseFloat(last.hips)/parseFloat(last.waist)).toFixed(3);
+  const r=parseFloat(ratio);
+  let comment=r<=0.70?'🌸 Ratio très féminin (≤0.70)':r<=0.75?'✨ Ratio féminin (0.71–0.75)':r<=0.80?'💫 En transition (0.76–0.80)':'🌱 Ça évolue ! (>0.80)';
+  const pct=Math.min(100,Math.max(0,((1.1-r)/0.4)*100));
+  el.innerHTML=`<div class="ratio-card">
+    <div class="ratio-label">Dernier ratio hanches / taille</div>
+    <div class="ratio-big">${ratio}</div>
+    <div style="font-size:13px;color:#8B7BAD;margin-top:4px">${last.hips} cm ÷ ${last.waist} cm · ${fmt(last.date)}</div>
+    <div class="ratio-bar-wrap"><div class="ratio-bar" style="width:${pct.toFixed(1)}%"></div></div>
+    <div class="ratio-hint">${comment}</div>
+  </div>`;
+}
+
+// ══ CONFETTI ══
+function confetti(){
+  const wrap=document.createElement('div');wrap.className='confetti-wrap';document.body.appendChild(wrap);
+  const colors=['#FF6B9D','#C084FC','#60A5FA','#34D399','#FBBF24','#FB923C'];
+  for(let i=0;i<60;i++){
+    const c=document.createElement('div');c.className='confetto';
+    c.style.cssText=`left:${Math.random()*100}vw;background:${colors[~~(Math.random()*6)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.5}s;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    wrap.appendChild(c);
+  }
+  setTimeout(()=>wrap.remove(),4000);
+}
+
+// ══ HOME ══
+function refreshHome(){
+  const prises=S.get('prises');
+  const blood=S.get('bloods');
+  const meas=S.get('measures');
+  document.getElementById('totalPrises').textContent=prises.length;
+  if(prises.length){
+    const days=daysSince(prises[prises.length-1].date);
+    document.getElementById('daysSinceStart').textContent=days;
+    document.getElementById('journeyDays').textContent=`Jour ${days}`;
+  }
+  if(blood.length&&blood[0].e2)document.getElementById('lastE2').textContent=blood[0].e2;
+  if(meas.length)document.getElementById('lastMeasureDate').textContent=fmtShort(meas[0].date);
+  if(prises.length){
+    const last=prises[0];
+    const interval=parseInt(last.interval)||7;
+    const nextDate=new Date(new Date(`${last.date}T${last.time||'12:00'}`).getTime()+interval*86400000);
+    const nextStr=nextDate.toISOString().slice(0,10);
+    const diff=daysFromNow(nextStr);
+    const hc=document.getElementById('heroCard');
+    if(diff<0){
+      document.getElementById('nextDays').textContent='Retard';
+      document.getElementById('nextSub').textContent=`Il y a ${Math.abs(diff)} jours`;
+      document.getElementById('nextDate').textContent=`Prévu le ${fmt(nextStr)}`;
+      hc.style.background='linear-gradient(135deg,rgba(239,68,68,.15),rgba(251,191,36,.1))';
+      hc.style.borderColor='rgba(239,68,68,.4)';
+    } else if(diff===0){
+      document.getElementById('nextDays').textContent="Aujourd'hui !";
+      document.getElementById('nextSub').textContent="C'est le jour J 🎯";
+      document.getElementById('nextDate').textContent=`${last.med} · ${last.dose} mg`;
+    } else {
+      document.getElementById('nextDays').textContent=`J-${diff}`;
+      document.getElementById('nextSub').textContent=`${last.med} · ${last.dose} mg`;
+      document.getElementById('nextDate').textContent=`Le ${fmt(nextStr)}`;
+    }
+  }
+  renderRdvHome();
+  renderNextMilestone();
+  const recent=prises.slice(0,3);
+  const el=document.getElementById('recentPrises');
+  if(!recent.length){el.innerHTML=`<div class="empty"><div class="emoji">🌱</div><p>Commence par enregistrer ta première prise !</p></div>`;return}
+  el.innerHTML=recent.map(i=>`
+    <div class="log-item">
+      <div class="log-dot" style="background:var(--pink)"></div>
+      <div class="log-content"><div class="log-title">${i.med} — ${i.dose} mg</div><div class="log-sub">${i.site||''}</div></div>
+      <div class="log-date">${fmtDT(i.date,i.time)}</div>
+    </div>`).join('');
+}
+
+// ══ CHARTS ══
+const cOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+  scales:{
+    x:{grid:{color:'rgba(192,132,252,.06)'},ticks:{color:'#8B7BAD',font:{family:'Nunito',size:10},maxTicksLimit:6}},
+    y:{grid:{color:'rgba(192,132,252,.06)'},ticks:{color:'#8B7BAD',font:{family:'Nunito',size:10}}}
+  }
+};
+function mkChart(id,type,labels,datasets,extra={}){
+  if(chartInstances[id])chartInstances[id].destroy();
+  chartInstances[id]=new Chart(document.getElementById(id).getContext('2d'),{type,data:{labels,datasets},options:{...cOpts,...extra}});
+}
+function switchChart(name,btn){
+  activeChartId=name;
+  document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');
+  ['E2','T','Weight','Mensus','Ratio','Intervals'].forEach(n=>document.getElementById('chart'+n).style.display='none');
+  const map={e2:'E2',t:'T',weight:'Weight',mensus:'Mensus',ratio:'Ratio',intervals:'Intervals'};
+  document.getElementById('chart'+map[name]).style.display='block';
+  setTimeout(()=>drawChart(name),50);
+}
+function drawChart(name){
+  document.getElementById('chartsEmpty').style.display='none';
+  const blood=[...S.get('bloods')].filter(b=>b.date).sort((a,b)=>a.date.localeCompare(b.date));
+  const meas=[...S.get('measures')].filter(m=>m.date).sort((a,b)=>a.date.localeCompare(b.date));
+  const prises=[...S.get('prises')].filter(i=>i.date).sort((a,b)=>a.date.localeCompare(b.date));
+  if(name==='e2'){
+    const pts=blood.filter(b=>b.e2);if(!pts.length){showChartsEmpty();return}
+    mkChart('canvasE2','line',pts.map(b=>fmtShort(b.date)),[{data:pts.map(b=>parseFloat(b.e2)),borderColor:'#FF6B9D',backgroundColor:'rgba(255,107,157,.08)',tension:.4,pointBackgroundColor:'#FF6B9D',pointRadius:5,fill:true}]);
+  }
+  if(name==='t'){
+    const pts=blood.filter(b=>b.t);if(!pts.length){showChartsEmpty();return}
+    mkChart('canvasT','line',pts.map(b=>fmtShort(b.date)),[{data:pts.map(b=>parseFloat(b.t)),borderColor:'#60A5FA',backgroundColor:'rgba(96,165,250,.08)',tension:.4,pointBackgroundColor:'#60A5FA',pointRadius:5,fill:true}]);
+  }
+  if(name==='weight'){
+    const pts=meas.filter(m=>m.weight);if(!pts.length){showChartsEmpty();return}
+    mkChart('canvasWeight','line',pts.map(m=>fmtShort(m.date)),[{data:pts.map(m=>parseFloat(m.weight)),borderColor:'#FBBF24',backgroundColor:'rgba(251,191,36,.08)',tension:.4,pointBackgroundColor:'#FBBF24',pointRadius:5,fill:true}]);
+  }
+  if(name==='mensus'){
+    const pts=meas.filter(m=>m.chest||m.waist||m.hips);if(!pts.length){showChartsEmpty();return}
+    mkChart('canvasMensus','line',pts.map(m=>fmtShort(m.date)),[
+      {label:'Poitrine',data:pts.map(m=>m.chest?parseFloat(m.chest):null),borderColor:'#FF6B9D',backgroundColor:'transparent',tension:.4,pointBackgroundColor:'#FF6B9D',pointRadius:4,spanGaps:true},
+      {label:'Taille',data:pts.map(m=>m.waist?parseFloat(m.waist):null),borderColor:'#C084FC',backgroundColor:'transparent',tension:.4,pointBackgroundColor:'#C084FC',pointRadius:4,spanGaps:true},
+      {label:'Hanches',data:pts.map(m=>m.hips?parseFloat(m.hips):null),borderColor:'#34D399',backgroundColor:'transparent',tension:.4,pointBackgroundColor:'#34D399',pointRadius:4,spanGaps:true}
+    ],{plugins:{legend:{display:true,labels:{color:'#8B7BAD',font:{family:'Nunito',size:11}}}}});
+  }
+  if(name==='ratio'){
+    const pts=meas.filter(m=>m.hips&&m.waist);if(!pts.length){showChartsEmpty();return}
+    mkChart('canvasRatio','line',pts.map(m=>fmtShort(m.date)),[{data:pts.map(m=>(parseFloat(m.hips)/parseFloat(m.waist)).toFixed(3)),borderColor:'#FF6B9D',backgroundColor:'rgba(255,107,157,.08)',tension:.4,pointBackgroundColor:'#FF6B9D',pointRadius:5,fill:true}],
+      {scales:{...cOpts.scales,y:{...cOpts.scales.y,min:0.6,max:1.1}}});
+  }
+  if(name==='intervals'){
+    if(prises.length<2){showChartsEmpty();return}
+    const labels=[],data=[];
+    for(let i=1;i<prises.length;i++){
+      labels.push(fmtShort(prises[i].date));
+      data.push(Math.abs(Math.round((new Date(prises[i].date)-new Date(prises[i-1].date))/86400000)));
+    }
+    mkChart('canvasIntervals','bar',labels,[{data,backgroundColor:'rgba(192,132,252,.45)',borderColor:'#C084FC',borderWidth:2,borderRadius:6}]);
+  }
+}
+function showChartsEmpty(){document.getElementById('chartsEmpty').style.display='block'}
+function renderCharts(){
+  document.getElementById('chartsEmpty').style.display='none';
+  ['E2','T','Weight','Mensus','Ratio','Intervals'].forEach(n=>document.getElementById('chart'+n).style.display='none');
+  const map={e2:'E2',t:'T',weight:'Weight',mensus:'Mensus',ratio:'Ratio',intervals:'Intervals'};
+  document.getElementById('chart'+map[activeChartId]).style.display='block';
+  setTimeout(()=>drawChart(activeChartId),50);
+}
+
+// ══ RAPPORT MÉDECIN ══
+function generateRapport(){
+  const name=document.getElementById('rapport-name').value;
+  const period=document.getElementById('rapport-period').value;
+  const prises=filterByPeriod(S.get('prises'),period).sort((a,b)=>a.date.localeCompare(b.date));
+  const bloods=filterByPeriod(S.get('bloods'),period).sort((a,b)=>a.date.localeCompare(b.date));
+  const meas=filterByPeriod(S.get('measures'),period).sort((a,b)=>a.date.localeCompare(b.date));
+  const today=new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
+  const allPrises=S.get('prises');
+  const startDate=allPrises.length?fmt(allPrises[allPrises.length-1].date):'—';
+  const elapsed=getElapsed();
+
+  const prisenRows=prises.map(p=>`<tr><td>${fmtDT(p.date,p.time)}</td><td>${p.med}</td><td>${p.dose} mg</td><td>${p.site||'—'}</td><td>${p.note||'—'}</td></tr>`).join('');
+  const bloodRows=bloods.map(b=>`<tr><td>${fmt(b.date)}</td><td>${b.e2||'—'}</td><td>${b.t||'—'}</td><td>${b.lh||'—'}</td><td>${b.fsh||'—'}</td><td>${b.prl||'—'}</td><td>${b.note||'—'}</td></tr>`).join('');
+  const measRows=meas.map(m=>`<tr><td>${fmt(m.date)}</td><td>${m.weight||'—'}</td><td>${m.chest||'—'}</td><td>${m.waist||'—'}</td><td>${m.hips||'—'}</td><td>${m.waist&&m.hips?(parseFloat(m.hips)/parseFloat(m.waist)).toFixed(3):'—'}</td></tr>`).join('');
+
+  const lastBlood=bloods[bloods.length-1];
+  const lastMeas=meas[meas.length-1];
+
+  const html=`<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8">
+<title>Rapport THS — ${name||'Patient'}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#1a1a2e;padding:40px;max-width:900px;margin:0 auto;line-height:1.5}
+  h1{font-size:22px;font-weight:700;color:#1a1a2e;margin-bottom:4px}
+  .subtitle{color:#666;font-size:13px;margin-bottom:32px}
+  h2{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#C084FC;margin:28px 0 10px;padding-bottom:6px;border-bottom:2px solid #C084FC}
+  .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:8px}
+  .meta-box{background:#f8f5ff;border:1px solid #e0d4ff;border-radius:10px;padding:12px;text-align:center}
+  .meta-box .val{font-size:20px;font-weight:800;color:#7c3aed}
+  .meta-box .lbl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+  table{width:100%;border-collapse:collapse;margin-bottom:8px}
+  th{background:#f3eeff;color:#7c3aed;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:8px 10px;text-align:left;border-bottom:2px solid #e0d4ff}
+  td{padding:8px 10px;border-bottom:1px solid #f0ebff;font-size:12px;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .highlight-box{background:#f8f5ff;border:1px solid #e0d4ff;border-radius:10px;padding:14px;margin-bottom:8px}
+  .highlight-box .row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #ede8ff}
+  .highlight-box .row:last-child{border-bottom:none}
+  .highlight-box .label{color:#555}
+  .highlight-box .value{font-weight:700;color:#1a1a2e}
+  .val-ok{color:#059669}.val-high{color:#d97706}.val-low{color:#dc2626}
+  .footer{margin-top:40px;padding-top:16px;border-top:1px solid #e0d4ff;color:#aaa;font-size:11px;display:flex;justify-content:space-between}
+  .empty-note{color:#aaa;font-style:italic;font-size:12px;padding:12px 0}
+  @media print{body{padding:20px}h2{color:#7c3aed!important}}
+</style></head><body>
+
+<h1>Rapport de suivi THS</h1>
+<div class="subtitle">Généré le ${today}${name?' · '+name:''}</div>
+
+<h2>Résumé</h2>
+<div class="meta-grid">
+  <div class="meta-box"><div class="val">${elapsed}</div><div class="lbl">Jours de THS</div></div>
+  <div class="meta-box"><div class="val">${prises.length}</div><div class="lbl">Prises (période)</div></div>
+  <div class="meta-box"><div class="val">${bloods.length}</div><div class="lbl">Bilans sanguins</div></div>
+  <div class="meta-box"><div class="val">${meas.length}</div><div class="lbl">Mensurations</div></div>
+</div>
+<div class="highlight-box" style="margin-top:12px">
+  <div class="row"><span class="label">Début du THS</span><span class="value">${startDate}</span></div>
+  ${allPrises.length?`<div class="row"><span class="label">Médicament actuel</span><span class="value">${allPrises[0].med} — ${allPrises[0].dose} mg</span></div>`:''}
+  ${allPrises.length?`<div class="row"><span class="label">Intervalle</span><span class="value">Toutes les ${allPrises[0].interval} jours</span></div>`:''}
+</div>
+
+${lastBlood?`
+
+<h2>Dernier bilan sanguin (${fmt(lastBlood.date)})</h2>
+<div class="highlight-box">
+  ${lastBlood.e2?`<div class="row"><span class="label">Estradiol (E2)</span><span class="value ${parseFloat(lastBlood.e2)>=100&&parseFloat(lastBlood.e2)<=400?'val-ok':parseFloat(lastBlood.e2)>400?'val-high':'val-low'}">${lastBlood.e2} pg/mL ${parseFloat(lastBlood.e2)>=100&&parseFloat(lastBlood.e2)<=400?'✓ dans la cible':parseFloat(lastBlood.e2)>400?'↑ au-dessus de la cible':'↓ en dessous de la cible'}</span></div>`:''}
+  ${lastBlood.t?`<div class="row"><span class="label">Testostérone (T)</span><span class="value">${lastBlood.t} ng/dL</span></div>`:''}
+  ${lastBlood.lh?`<div class="row"><span class="label">LH</span><span class="value">${lastBlood.lh} mUI/mL</span></div>`:''}
+  ${lastBlood.fsh?`<div class="row"><span class="label">FSH</span><span class="value">${lastBlood.fsh} mUI/mL</span></div>`:''}
+  ${lastBlood.prl?`<div class="row"><span class="label">Prolactine</span><span class="value">${lastBlood.prl} µg/L</span></div>`:''}
+  ${lastBlood.note?`<div class="row"><span class="label">Note</span><span class="value">${lastBlood.note}</span></div>`:''}
+</div>`:''}
+
+${lastMeas?`
+
+<h2>Dernières mensurations (${fmt(lastMeas.date)})</h2>
+<div class="highlight-box">
+  ${lastMeas.weight?`<div class="row"><span class="label">Poids</span><span class="value">${lastMeas.weight} kg</span></div>`:''}
+  ${lastMeas.chest?`<div class="row"><span class="label">Tour de poitrine</span><span class="value">${lastMeas.chest} cm</span></div>`:''}
+  ${lastMeas.waist?`<div class="row"><span class="label">Tour de taille</span><span class="value">${lastMeas.waist} cm</span></div>`:''}
+  ${lastMeas.hips?`<div class="row"><span class="label">Tour de hanches</span><span class="value">${lastMeas.hips} cm</span></div>`:''}
+  ${lastMeas.waist&&lastMeas.hips?`<div class="row"><span class="label">Ratio hanches/taille</span><span class="value">${(parseFloat(lastMeas.hips)/parseFloat(lastMeas.waist)).toFixed(3)}</span></div>`:''}
+</div>`:''}
+
+<h2>Historique des prises</h2>
+${prises.length?`<table><thead><tr><th>Date</th><th>Médicament</th><th>Dose</th><th>Site</th><th>Note</th></tr></thead><tbody>${prisenRows}</tbody></table>`:`<p class="empty-note">Aucune prise sur la période sélectionnée.</p>`}
+
+<h2>Historique des bilans sanguins</h2>
+${bloods.length?`<table><thead><tr><th>Date</th><th>E2 pg/mL</th><th>T ng/dL</th><th>LH</th><th>FSH</th><th>Prolact.</th><th>Note</th></tr></thead><tbody>${bloodRows}</tbody></table>`:`<p class="empty-note">Aucun bilan sur la période sélectionnée.</p>`}
+
+<h2>Historique des mensurations</h2>
+${meas.length?`<table><thead><tr><th>Date</th><th>Poids kg</th><th>Poitrine cm</th><th>Taille cm</th><th>Hanches cm</th><th>Ratio h/t</th></tr></thead><tbody>${measRows}</tbody></table>`:`<p class="empty-note">Aucune mensuration sur la période sélectionnée.</p>`}
+
+<div class="footer">
+  <span>Généré par THS Track · ${today}</span>
+  <span>Document confidentiel · usage médical personnel</span>
+</div>
+</body></html>`;
+
+const blob=new Blob([html],{type:‘text/html’});
+const url=URL.createObjectURL(blob);
+const win=window.open(url,’_blank’);
+if(win)setTimeout(()=>{win.print();URL.revokeObjectURL(url)},600);
+else{
+const a=document.createElement(‘a’);
+a.href=url;a.download=`rapport-ths-${todayStr()}.html`;a.click();
+URL.revokeObjectURL(url);
+}
+}
+
+// ══ SETTINGS ══
+function refreshSettings(){
+document.getElementById(‘countPrises’).textContent=S.get(‘prises’).length;
+document.getElementById(‘countBlood’).textContent=S.get(‘bloods’).length;
+document.getElementById(‘countMeas’).textContent=S.get(‘measures’).length;
+document.getElementById(‘countPhotos’).textContent=S.get(‘photos’).length;
+let total=0;
+[‘prises’,‘bloods’,‘measures’].forEach(k=>{total+=(localStorage.getItem(k)||’’).length});
+document.getElementById(‘storageSize’).textContent=`~${(total/1024).toFixed(1)} Ko (hors photos)`;
+}
+function exportData(){
+const data={version:4,exportedAt:new Date().toISOString(),
+prises:S.get(‘prises’),bloods:S.get(‘bloods’),
+measures:S.get(‘measures’),rdv:S.getOne(‘rdv’)};
+const blob=new Blob([JSON.stringify(data,null,2)],{type:‘application/json’});
+const url=URL.createObjectURL(blob);
+const a=document.createElement(‘a’);
+a.href=url;a.download=`ths-track-backup-${todayStr()}.json`;a.click();
+URL.revokeObjectURL(url);
+}
+function importData(input){
+const file=input.files[0];if(!file)return;
+const r=new FileReader();
+r.onload=e=>{
+try{
+const data=JSON.parse(e.target.result);
+// Compatibilité v1-v3 : injections → prises
+const prises=data.prises||data.injections||[];
+if(!confirm(`Importer ${prises.length} prises, ${data.bloods?.length||0} bilans, ${data.measures?.length||0} mensurations ?\n\nCela REMPLACERA tes données actuelles.`))return;
+S.set(‘prises’,prises);
+if(data.bloods)S.set(‘bloods’,data.bloods);
+if(data.measures)S.set(‘measures’,data.measures);
+if(data.rdv)S.setOne(‘rdv’,data.rdv);
+refreshSettings();refreshHome();
+alert(‘✅ Import réussi !’);
+}catch(err){alert(‘❌ Fichier invalide : ‘+err.message)}
+};
+r.readAsText(file);input.value=’’;
+}
+function nukeAll(){
+if(!confirm(‘Supprimer TOUTES les données ?\nIrréversible !’))return;
+if(!confirm(‘Dernière chance. Tu as exporté ?’))return;
+[‘prises’,‘injections’,‘bloods’,‘measures’,‘photos’,‘rdv’].forEach(k=>localStorage.removeItem(k));
+refreshHome();refreshSettings();
+alert(‘🗑️ Données supprimées.’);
+}
+
+// ══ INIT ══
+refreshHome();
+setTimeout(()=>{const b=document.getElementById(‘installBanner’);if(b)b.style.display=‘none’},9000);
+</script>
+
+</body>
+</html>
