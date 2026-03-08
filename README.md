@@ -58,4 +58,4 @@ Ce projet a été conçu et itéré en conversation avec **Claude Sonnet** (Anth
 
 ## Licence
 
-MIT — fais-en ce que tu veux.
+[GNU General Public License v3.0](LICENSE) — libre d'utilisation, de modification et de distribution, à condition que tout projet dérivé reste sous la même licence open source.
