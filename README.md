@@ -52,7 +52,7 @@ Toutes les données sont stockées en local via `localStorage` dans Safari. Rien
 
 ## Genèse
 
-Ce projet a été conçu et itéré en conversation avec **Claude Sonnet** (Anthropic). L'idée de départ était simple — avoir un endroit discret pour suivre un THS féminisant sans passer par une appli du store qui demande un compte, des permissions, ou qui revend des données. Quatre versions plus tard, ça a une vraie gueule.
+Ce projet a été conçu et itéré en conversation avec **Claude Sonnet** (Anthropic). L'idée de départ était simple — avoir un endroit discret pour suivre un THS féminisant sans passer par une appli du store qui demande un compte, des permissions, ou qui revend des données.
 
 ---
 
